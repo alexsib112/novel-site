@@ -1,0 +1,373 @@
+:root {
+  --bg: #f5f4fa;
+  --bg-elev: #ffffff;
+  --bg-soft: #edeaf6;
+  --text: #1d1a2a;
+  --text-dim: #6b6680;
+  --text-faint: #9b96ad;
+  --line: #e6e2f0;
+  --accent: #6c5ce7;
+  --accent-2: #a855f7;
+  --accent-soft: #ece8ff;
+  --grad: linear-gradient(135deg, #6c5ce7 0%, #a855f7 55%, #ec4899 130%);
+  --shadow: 0 6px 24px rgba(60, 45, 120, 0.10);
+  --shadow-lg: 0 16px 48px rgba(60, 45, 120, 0.18);
+  --radius: 14px;
+  --radius-lg: 20px;
+}
+
+/* Тёмная тема сайта (не читалки) */
+html.dark {
+  --bg: #12101c;
+  --bg-elev: #1b1830;
+  --bg-soft: #242040;
+  --text: #ece9f7;
+  --text-dim: #a39fc0;
+  --text-faint: #6f6b8a;
+  --line: #2b2750;
+  --accent-soft: #2a2352;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  transition: background .25s, color .25s;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ---------- Шапка ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg-elev) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.logo__mark {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  background: var(--grad);
+  color: #fff; font-weight: 800; font-size: 18px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+.logo__text { font-weight: 700; font-size: 18px; letter-spacing: -.02em; }
+.logo__text b { color: var(--accent); font-weight: 800; }
+
+.search {
+  flex: 1;
+  max-width: 460px;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-soft);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 9px 14px;
+  color: var(--text-faint);
+  transition: border-color .15s, background .15s;
+}
+.search:focus-within { border-color: var(--accent); background: var(--bg-elev); }
+.search input {
+  flex: 1; border: 0; outline: 0; background: transparent;
+  color: var(--text); font-size: 14px;
+}
+
+.topbar__nav { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+.ghost {
+  display: grid; place-items: center;
+  width: 38px; height: 38px;
+  background: var(--bg-soft); border: 0; border-radius: 11px;
+  color: var(--text-dim); transition: .15s;
+}
+.ghost:hover { background: var(--accent-soft); color: var(--accent); }
+
+.primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--grad); color: #fff; border: 0;
+  padding: 9px 16px; border-radius: 11px;
+  font-weight: 600; font-size: 13.5px;
+  box-shadow: var(--shadow);
+  transition: transform .12s, box-shadow .12s;
+}
+.primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+
+/* ---------- Жанры ---------- */
+.genres {
+  max-width: 1200px;
+  margin: 14px auto 0;
+  padding: 0 20px;
+  display: flex; gap: 8px; overflow-x: auto;
+  scrollbar-width: none;
+}
+.genres::-webkit-scrollbar { display: none; }
+.chip {
+  white-space: nowrap;
+  padding: 7px 15px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-size: 13px; font-weight: 500;
+  transition: .15s;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.active {
+  background: var(--grad); color: #fff; border-color: transparent;
+}
+
+/* ---------- Контент ---------- */
+.view { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin: 26px 0 16px;
+}
+.section-head h2 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+.section-head .more { color: var(--accent); font-weight: 600; font-size: 13.5px; }
+
+/* Герой-баннер */
+.hero {
+  position: relative;
+  border-radius: var(--radius-lg);
+  padding: 30px 34px;
+  color: #fff;
+  background: var(--grad);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 8px;
+}
+.hero::after {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 82% 20%, rgba(255,255,255,.25), transparent 34%),
+    radial-gradient(circle at 70% 90%, rgba(0,0,0,.18), transparent 40%);
+}
+.hero h1 { margin: 0 0 8px; font-size: 28px; font-weight: 800; letter-spacing: -.02em; position: relative; z-index: 1; }
+.hero p { margin: 0 0 20px; max-width: 560px; font-size: 15px; opacity: .92; position: relative; z-index: 1; }
+.hero .primary { background: #fff; color: var(--accent); }
+
+/* ---------- Сетка карточек ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+}
+.card {
+  cursor: pointer;
+  transition: transform .15s;
+}
+.card:hover { transform: translateY(-4px); }
+.cover {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  display: flex; align-items: flex-end;
+}
+.cover__img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.cover__letter {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-size: 52px; font-weight: 800; color: rgba(255,255,255,.9);
+  font-family: "PT Serif", serif;
+  text-shadow: 0 2px 12px rgba(0,0,0,.25);
+}
+.cover__badge {
+  position: absolute; top: 10px; left: 10px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .03em;
+  padding: 4px 9px; border-radius: 7px;
+  background: rgba(0,0,0,.45); color: #fff;
+  backdrop-filter: blur(4px);
+}
+.cover__rating {
+  position: absolute; top: 10px; right: 10px;
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11.5px; font-weight: 700;
+  padding: 4px 8px; border-radius: 7px;
+  background: rgba(0,0,0,.45); color: #ffd166;
+  backdrop-filter: blur(4px);
+}
+.card__title {
+  margin: 11px 2px 0;
+  font-size: 14px; font-weight: 600; line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card__meta { margin: 4px 2px 0; font-size: 12px; color: var(--text-faint); }
+
+/* ---------- Страница новеллы ---------- */
+.novel-hero {
+  display: flex; gap: 28px;
+  padding: 26px;
+  background: var(--bg-elev);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.novel-hero .cover { flex-shrink: 0; width: 200px; aspect-ratio: 2/3; }
+.novel-info { flex: 1; min-width: 0; }
+.novel-info h1 { margin: 4px 0 6px; font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+.novel-info .author { color: var(--accent); font-weight: 600; font-size: 14.5px; }
+.tags { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0; }
+.tag {
+  font-size: 12px; font-weight: 600;
+  padding: 5px 11px; border-radius: 8px;
+  background: var(--accent-soft); color: var(--accent);
+}
+.novel-stats {
+  display: flex; gap: 22px; margin: 16px 0;
+  font-size: 13px; color: var(--text-dim);
+}
+.novel-stats b { display: block; font-size: 17px; color: var(--text); }
+.synopsis {
+  margin: 0; color: var(--text-dim); font-size: 14.5px; line-height: 1.65;
+  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+}
+.novel-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--bg-soft); color: var(--text);
+  border: 1px solid var(--line); border-radius: 11px;
+  padding: 10px 16px; font-weight: 600; font-size: 13.5px;
+}
+
+/* ---------- Список глав ---------- */
+.chapters { margin-top: 26px; }
+.chapters__head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.chapters__head h3 { margin: 0; font-size: 17px; font-weight: 800; }
+.chapter-list {
+  background: var(--bg-elev);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.chapter-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--line);
+  transition: background .12s;
+}
+.chapter-row:last-child { border-bottom: 0; }
+.chapter-row:hover { background: var(--accent-soft); }
+.chapter-row .num {
+  flex-shrink: 0; width: 34px; height: 34px;
+  display: grid; place-items: center;
+  background: var(--bg-soft); border-radius: 9px;
+  font-weight: 700; font-size: 13px; color: var(--accent);
+}
+.chapter-row .title { flex: 1; font-weight: 500; font-size: 14px; }
+.chapter-row .len { font-size: 12px; color: var(--text-faint); flex-shrink: 0; }
+
+/* ---------- Читалка ---------- */
+.reader { max-width: 760px; margin: 0 auto; }
+.reader__toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 18px; flex-wrap: wrap;
+}
+.reader__tools { display: flex; gap: 8px; align-items: center; }
+.tool {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-elev); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 13px;
+  font-size: 13px; font-weight: 600; color: var(--text-dim);
+}
+.tool:hover { border-color: var(--accent); color: var(--accent); }
+.tool.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+.reader__paper {
+  background: var(--bg-elev);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 42px 46px;
+}
+.reader__paper .chapter-title {
+  margin: 0 0 26px; font-size: 24px; font-weight: 800; letter-spacing: -.01em;
+}
+.reader__paper .novel-name { color: var(--accent); font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.reader__paper .prose { font-family: "PT Serif", serif; font-size: 17.5px; line-height: 1.75; color: var(--text); }
+.reader__paper .prose p { margin: 0 0 18px; }
+.reader__paper .prose .dialogue { color: var(--accent); }
+
+.reader__pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 22px; }
+.reader__pager .primary, .reader__pager .btn-secondary { flex: 1; justify-content: center; }
+
+/* Режимы читалки */
+body.reader-sepia { background: #f3ead8; }
+body.reader-dark { background: #151320; }
+body.reader-dark .reader__paper {
+  background: #1e1b30; color: #e8e5f4;
+  box-shadow: 0 6px 24px rgba(0,0,0,.45);
+}
+body.reader-dark .reader__paper .prose { color: #e8e5f4; }
+body.reader-dark .reader__paper .chapter-title { color: #fff; }
+
+/* Пустое состояние */
+.empty {
+  text-align: center; padding: 70px 20px; color: var(--text-dim);
+}
+.empty h3 { margin: 0 0 6px; font-size: 18px; }
+.empty p { margin: 0; font-size: 14px; color: var(--text-faint); }
+
+/* Модалка выбора языка */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(20, 15, 40, .5);
+  display: none; place-items: center; padding: 20px;
+}
+.modal-backdrop.open { display: grid; }
+.modal {
+  background: var(--bg-elev); border-radius: var(--radius-lg);
+  padding: 24px; width: 100%; max-width: 360px;
+  box-shadow: var(--shadow-lg);
+}
+.modal h3 { margin: 0 0 14px; font-size: 17px; font-weight: 800; }
+.lang-option {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; text-align: left;
+  background: var(--bg-soft); border: 1px solid transparent;
+  border-radius: 11px; padding: 12px 16px; margin-bottom: 8px;
+  font-size: 14px; font-weight: 600; color: var(--text);
+  transition: .12s;
+}
+.lang-option:hover { border-color: var(--accent); }
+.lang-option.active { border-color: var(--accent); background: var(--accent-soft); }
+
+@media (max-width: 720px) {
+  .novel-hero { flex-direction: column; }
+  .novel-hero .cover { width: 140px; }
+  .hero { padding: 24px; }
+  .reader__paper { padding: 28px 22px; }
+  .topbar__inner { gap: 10px; }
+}
