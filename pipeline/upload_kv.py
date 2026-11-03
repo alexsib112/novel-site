@@ -15,6 +15,7 @@ import json
 import os
 import sys
 import time
+import urllib.error
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -33,6 +34,23 @@ def load_creds():
     }
 
 
+def _open_with_retry(req, attempts=6):
+    """urllib с ретраями: 429/5xx пережидаем с экспоненциальной паузой."""
+    last = None
+    for attempt in range(attempts):
+        try:
+            return urllib.request.urlopen(req, timeout=120)
+        except urllib.error.HTTPError as e:
+            last = e
+            if e.code in (429, 500, 502, 503, 504) and attempt < attempts - 1:
+                wait = 20 * (attempt + 1)
+                print("  HTTP %d, жду %dс (попытка %d/%d)" % (e.code, wait, attempt + 1, attempts))
+                time.sleep(wait)
+                continue
+            raise
+    raise last
+
+
 def api_put(creds, key, value):
     url = (
         "https://api.cloudflare.com/client/v4/accounts/"
@@ -46,7 +64,7 @@ def api_put(creds, key, value):
     req.add_header("X-Auth-Email", creds["email"])
     req.add_header("X-Auth-Key", creds["global_key"])
     req.add_header("Content-Type", "application/json; charset=utf-8")
-    with urllib.request.urlopen(req, timeout=60) as resp:
+    with _open_with_retry(req) as resp:
         body = json.loads(resp.read().decode("utf-8"))
     if not body.get("success"):
         raise RuntimeError("KV write failed for %s: %s" % (key, body.get("errors")))
@@ -68,12 +86,12 @@ def api_bulk(creds, entries):
         req.add_header("X-Auth-Email", creds["email"])
         req.add_header("X-Auth-Key", creds["global_key"])
         req.add_header("Content-Type", "application/json")
-        with urllib.request.urlopen(req, timeout=120) as resp:
+        with _open_with_retry(req) as resp:
             body = json.loads(resp.read().decode("utf-8"))
         if not body.get("success"):
             raise RuntimeError("KV bulk write failed: %s" % body.get("errors"))
         print("  bulk uploaded %d keys (total %d/%d)" % (len(chunk), min(i + 1000, len(entries)), len(entries)))
-        time.sleep(1)
+        time.sleep(3)
 
 
 def upload_novel(creds, novel_id):
