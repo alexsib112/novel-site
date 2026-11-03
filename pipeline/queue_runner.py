@@ -162,10 +162,16 @@ def build_site_package(slug, meta):
         c.close()
         if tr == 0:
             continue
+        ct = m.get("chapters_total")
+        if not ct:
+            c2 = nf.db()
+            row = c2.execute("SELECT chapters_total FROM books WHERE slug=?", (m["slug"],)).fetchone()
+            c2.close()
+            ct = (row[0] if row and row[0] else tr)
         cards.append({
             "id": m["id"], "title": m["ru"], "orig": m["orig"], "author": m["author"],
             "genres": m["genres"], "status": m["status"], "rating": m["rating"], "likes": m["likes"],
-            "chapters": m["chapters_total"], "synopsis": m["synopsis"],
+            "chapters": ct, "synopsis": m["synopsis"],
             "gradient": m["gradient"], "letter": m["letter"], "lang": m["lang"],
             "translated": True, "lazy": True,
             "indexUrl": f'data/{m["id"]}/index.json', "chunkSize": 25,
