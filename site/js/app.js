@@ -37,11 +37,33 @@ function cardHTML(n) {
     </div>`;
 }
 
+// ---------- API: единая точка доступа к контенту ----------
+// Контент отдаётся через Cloudflare Worker ( novelverse-api ), прямые
+// ссылки на данные используются только как запасной вариант на переходный
+// период и будут удалены после полного переноса контента в API.
+const API_BASE = "https://novelverse-api.novelverse-api.workers.dev";
+
+async function apiFetch(path) {
+  try {
+    const r = await fetch(API_BASE + path, { cache: "no-cache" });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch (e) {
+    console.error("API недоступен:", path, e);
+    return null;
+  }
+}
+
 // ---------- Ленивая загрузка глав ----------
 const _chunkCache = {};
 
 async function loadIndex(n) {
   if (n.chaptersIndex) return n.chaptersIndex;
+  const fromApi = await apiFetch(`/api/novel/${n.id}/index`);
+  if (fromApi && (fromApi.chapters || Array.isArray(fromApi))) {
+    n.chaptersIndex = fromApi.chapters || fromApi;
+    return n.chaptersIndex;
+  }
   if (!n.indexUrl) return (n.chaptersIndex = []);
   try {
     const j = await (await fetch(n.indexUrl, { cache: "no-cache" })).json();
@@ -61,6 +83,8 @@ function chunkUrl(n, num) {
 
 async function loadChapter(n, num) {
   if (n.chaptersData) return n.chaptersData.find(c => c.n === num) || null;
+  const fromApi = await apiFetch(`/api/novel/${n.id}/chapter/${num}`);
+  if (fromApi) return fromApi;
   if (!n.lazy) return null;
   const cache = (_chunkCache[n.id] = _chunkCache[n.id] || {});
   const url = chunkUrl(n, num);
@@ -345,5 +369,24 @@ themeToggle.addEventListener("click", toggleSiteTheme);
 langChip.addEventListener("click", openLangModal);
 window.addEventListener("hashchange", route);
 
-renderGenres();
-route();
+// Каталог из API: добавляем новеллы, которых нет в локальной выборке
+// (переводы из очереди появляются на сайте автоматически после заливки в API).
+async function mergeCatalogFromApi() {
+  const catalog = await apiFetch("/api/catalog");
+  if (!catalog || !Array.isArray(catalog.novels)) return;
+  for (const card of catalog.novels) {
+    const existing = NOVELS.find(n => n.id === card.id);
+    if (existing) {
+      Object.assign(existing, card, { chaptersData: existing.chaptersData });
+    } else {
+      card.lazy = true;
+      NOVELS.push(card);
+    }
+  }
+}
+
+(async () => {
+  await mergeCatalogFromApi();
+  renderGenres();
+  route();
+})();
