@@ -100,8 +100,38 @@ def upload_novel(creds, novel_id):
         print("%s: %d chapters" % (novel_id, len(entries)))
 
 
+def synthesize_catalog():
+    """Если site/data/catalog.json ещё не собран очередью — собрать из novels_queue.json + index.json."""
+    qpath = os.path.join(HERE, "novels_queue.json")
+    catalog = {"base": "https://novellith-18k.pages.dev", "novels": []}
+    if not os.path.exists(qpath):
+        return catalog
+    for m in json.load(open(qpath, encoding="utf-8")):
+        ndir = os.path.join(DATA, m["id"])
+        ipath = os.path.join(ndir, "index.json")
+        if not os.path.exists(ipath):
+            continue
+        idx = json.load(open(ipath, encoding="utf-8"))
+        if not idx.get("chapters"):
+            continue
+        catalog["novels"].append({
+            "id": m["id"], "title": m["ru"], "orig": m["orig"], "author": m["author"],
+            "genres": m["genres"], "status": m["status"], "rating": m["rating"], "likes": m["likes"],
+            "chapters": len(idx["chapters"]), "synopsis": m["synopsis"],
+            "gradient": m["gradient"], "letter": m["letter"], "lang": m["lang"],
+            "translated": True, "lazy": True,
+            "indexUrl": "data/%s/index.json" % m["id"], "chunkSize": 25,
+        })
+    return catalog
+
+
 def upload_catalog(creds):
-    catalog = json.load(open(os.path.join(DATA, "catalog.json"), encoding="utf-8"))
+    path = os.path.join(DATA, "catalog.json")
+    if os.path.exists(path):
+        catalog = json.load(open(path, encoding="utf-8"))
+    else:
+        print("catalog.json не найден (%s) — собираю из novels_queue.json + index.json" % path)
+        catalog = synthesize_catalog()
     for novel in catalog.get("novels", []):
         novel.setdefault("access", "free")  # free | exclusive — решается на API, не в клиентах
     api_put(creds, "catalog", json.dumps(catalog, ensure_ascii=False))
@@ -111,12 +141,18 @@ def upload_catalog(creds):
 def main():
     only = sys.argv[1] if len(sys.argv) > 1 else None
     creds = load_creds()
-    upload_catalog(creds)
+    try:
+        upload_catalog(creds)
+    except Exception as e:
+        print("ОШИБКА заливки каталога: %s (продолжаю с новеллами)" % e)
     for name in sorted(os.listdir(DATA)):
         if only and name != only:
             continue
         if os.path.isdir(os.path.join(DATA, name)):
-            upload_novel(creds, name)
+            try:
+                upload_novel(creds, name)
+            except Exception as e:
+                print("ОШИБКА заливки %s: %s" % (name, e))
     print("done")
 
 
