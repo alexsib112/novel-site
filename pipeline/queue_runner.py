@@ -13,14 +13,19 @@ sys.stdout.reconfigure(encoding="utf-8") if hasattr(sys.stdout, "reconfigure") e
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-os.environ.setdefault("NEURALDEEP_API_KEY", open(os.path.join(HERE, "api_key.txt")).read().strip()
-                      if os.path.exists(os.path.join(HERE, "api_key.txt")) else "")
+if os.path.exists(os.path.join(HERE, "api_keys.txt")):
+    os.environ.setdefault("NEURALDEEP_API_KEYS", ",".join(
+        l.strip() for l in open(os.path.join(HERE, "api_keys.txt"), encoding="utf-8")
+        if l.strip() and not l.startswith("#")))
+else:
+    os.environ.setdefault("NEURALDEEP_API_KEY", open(os.path.join(HERE, "api_key.txt")).read().strip()
+                          if os.path.exists(os.path.join(HERE, "api_key.txt")) else "")
 
 import nf_pipeline as nf
 
 QUEUE = json.load(open(os.path.join(HERE, "novels_queue.json"), encoding="utf-8"))
 DL_WORKERS = 3
-TR_WORKERS = 6
+TR_WORKERS = 8  # лимит аккаунта 9 параллельных (Qwen ∞), 1 про запас на служебные вызовы
 TR_BATCH = 300          # переводим партиями, чтобы чанки пересобирались инкрементально
 
 def log(msg):
