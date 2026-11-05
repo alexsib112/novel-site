@@ -28,4 +28,6 @@ site/data/bth/
 # Environment / secrets
 .env
 .env.*
-*.key
+*.keyapi_keys.txt
+github_token.txt
+api_key.txt
