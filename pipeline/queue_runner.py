@@ -25,7 +25,7 @@ import nf_pipeline as nf
 
 QUEUE = json.load(open(os.path.join(HERE, "novels_queue.json"), encoding="utf-8"))
 DL_WORKERS = 3
-TR_WORKERS = 8  # лимит аккаунта 9 параллельных (Qwen ∞), 1 про запас на служебные вызовы
+TR_WORKERS = 16  # 2 аккаунта × 9 потоков (Qwen ∞); ротация ключей делит нагрузку ~8+8
 TR_BATCH = 300          # переводим партиями, чтобы чанки пересобирались инкрементально
 
 def log(msg):
