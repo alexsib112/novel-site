@@ -21,8 +21,13 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-os.environ.setdefault("NEURALDEEP_API_KEY", open(os.path.join(HERE, "api_key.txt")).read().strip()
-                      if os.path.exists(os.path.join(HERE, "api_key.txt")) else "")
+if os.path.exists(os.path.join(HERE, "api_keys.txt")):
+    os.environ.setdefault("NEURALDEEP_API_KEYS", ",".join(
+        l.strip() for l in open(os.path.join(HERE, "api_keys.txt"), encoding="utf-8")
+        if l.strip() and not l.startswith("#")))
+else:
+    os.environ.setdefault("NEURALDEEP_API_KEY", open(os.path.join(HERE, "api_key.txt")).read().strip()
+                          if os.path.exists(os.path.join(HERE, "api_key.txt")) else "")
 
 import requests
 
@@ -97,7 +102,7 @@ def qwen_fix_word(word, sentence, glossary):
         try:
             r = requests.post(
                 QWEN_URL,
-                headers={"Authorization": "Bearer " + nf.KEY, "Content-Type": "application/json"},
+                headers={"Authorization": "Bearer " + nf.next_key(), "Content-Type": "application/json"},
                 json={"model": MODEL, "temperature": 0.1,
                       "messages": [{"role": "user", "content": prompt}],
                       "max_tokens": 100},
